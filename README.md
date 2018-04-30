@@ -1,4 +1,4 @@
-graqt ~go-request-query-logger~
+graqt go-request-query-logger
 ===
 
 `graqt` is middleware to easily record access log and sql log.
