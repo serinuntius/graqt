@@ -17,3 +17,6 @@
 
 
 vendor/
+
+query.log
+request.log
