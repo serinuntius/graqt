@@ -65,7 +65,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	stmt, _ := db.PrepareContext(ctx, "INSERT INTO `user` (email,age) VALUES (?, ?)")
 	t1 := time.Now().UnixNano()
-	age := rand.Int()
+	age := rand.Intn(80)
 
 	stmt.ExecContext(ctx, fmt.Sprintf("hoge%d@hoge.com", t1), age)
 
