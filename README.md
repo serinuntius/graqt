@@ -24,12 +24,12 @@ query.log
 
 access.log
 ```json
-{"level":"info","ts":1525082389.1337767,"caller":"graqt/middleware.go:25","msg":"","time":0.011566198,"request_id":"5914e629-6746-42c5-b342-702f224f48e1","path":"/user"}
-{"level":"info","ts":1525082389.2157433,"caller":"graqt/middleware.go:25","msg":"","time":0.003945689,"request_id":"4e743b2a-59be-4692-b36b-3b6a9ba78b01","path":"/user"}
-{"level":"info","ts":1525082389.2983494,"caller":"graqt/middleware.go:25","msg":"","time":0.014426681,"request_id":"f1d68fb3-5450-48f3-9f46-1ea5ad2370fb","path":"/user"}
-{"level":"info","ts":1525082389.3756797,"caller":"graqt/middleware.go:25","msg":"","time":0.004002398,"request_id":"e727db2b-df12-410c-91a4-4dd3117b9452","path":"/user"}
-{"level":"info","ts":1525082389.47504,"caller":"graqt/middleware.go:25","msg":"","time":0.005889232,"request_id":"57df4708-9705-4401-98b2-fad4bacfe585","path":"/user"}
-{"level":"info","ts":1525082389.554212,"caller":"graqt/middleware.go:25","msg":"","time":0.016009073,"request_id":"58957516-c7b2-4f64-8889-b39496e6597f","path":"/user"}
+{"level":"info","ts":1525082389.1337767,"caller":"graqt/middleware.go:25","msg":"","time":0.011566198,"request_id":"5914e629-6746-42c5-b342-702f224f48e1","path":"/user","method":"POST"}
+{"level":"info","ts":1525082389.2157433,"caller":"graqt/middleware.go:25","msg":"","time":0.003945689,"request_id":"4e743b2a-59be-4692-b36b-3b6a9ba78b01","path":"/user","method":"POST"}
+{"level":"info","ts":1525082389.2983494,"caller":"graqt/middleware.go:25","msg":"","time":0.014426681,"request_id":"f1d68fb3-5450-48f3-9f46-1ea5ad2370fb","path":"/user","method":"POST"}
+{"level":"info","ts":1525082389.3756797,"caller":"graqt/middleware.go:25","msg":"","time":0.004002398,"request_id":"e727db2b-df12-410c-91a4-4dd3117b9452","path":"/user","method":"POST"}
+{"level":"info","ts":1525082389.47504,"caller":"graqt/middleware.go:25","msg":"","time":0.005889232,"request_id":"57df4708-9705-4401-98b2-fad4bacfe585","path":"/user","method":"POST"}
+{"level":"info","ts":1525082389.554212,"caller":"graqt/middleware.go:25","msg":"","time":0.016009073,"request_id":"58957516-c7b2-4f64-8889-b39496e6597f","path":"/user","method":"POST"}
 ```
 
 
