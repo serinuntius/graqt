@@ -26,6 +26,7 @@ func RequestId(next http.Handler) http.Handler {
 			zap.Duration("time", time.Since(t1)),
 			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
+			zap.String("method", r.Method),
 		)
 	})
 }
