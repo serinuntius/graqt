@@ -24,7 +24,7 @@ func RequestId(next http.Handler) http.Handler {
 
 		RLogger.Info("",
 			zap.Duration("time", time.Since(t1)),
-			zap.String("id", id),
+			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
 		)
 	})
