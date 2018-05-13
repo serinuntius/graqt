@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,7 +17,7 @@ import (
 
 var (
 	// ADD TWO VARIABLES
-	traceEnabled = true
+	traceEnabled = os.Getenv("GRAQT_TRACE")
 	driverName   = "mysql"
 
 	db *sql.DB
@@ -28,7 +29,7 @@ func init() {
 func main() {
 
 	// ADD IF STATEMENT
-	if traceEnabled {
+	if traceEnabled == "1" {
 		driverName = "mysql-tracer"
 		// SET LogPath IF YOU'D LIKE TO CHANGE LogPath.
 		// DEFAULT IS query.log and request.log
@@ -50,7 +51,7 @@ func main() {
 
 	// ADD MIDDLEWARE
 	var chain alice.Chain
-	if traceEnabled {
+	if traceEnabled == "1" {
 		chain = alice.New(graqt.RequestId)
 	} else {
 		chain = alice.New()
