@@ -1,12 +1,13 @@
 package viewer
 
 import (
-	"bufio"
-	"bytes"
+	"encoding/json"
 	"io"
 
 	"github.com/pkg/errors"
 )
+
+const queryMapBuffer = 1024
 
 type Query struct {
 	Level     string  `json:"level"`
@@ -16,7 +17,7 @@ type Query struct {
 	Time      float64 `json:"time"`
 	RequestID string  `json:"request_id"`
 	Query     string  `json:"query"`
-	Args      []args    `json:"args"`
+	Args      []args  `json:"args"`
 }
 
 type args struct {
@@ -32,9 +33,16 @@ type args struct {
 // "request_id":"d8523ba8-9948-4171-90ae-57f3b4649efa"}
 
 type QueryParser struct {
-	Queries []Query
-	file    io.Reader
+	QueryMap QueryMap
+	file     io.Reader
 }
+
+type QueryIndex struct {
+	Queries []Query
+	Count   int
+}
+
+type QueryMap map[string]*QueryIndex
 
 func NewQueryParser(file io.Reader) *QueryParser {
 	return &QueryParser{
@@ -42,32 +50,29 @@ func NewQueryParser(file io.Reader) *QueryParser {
 	}
 }
 
-func (r *QueryParser) Parse() error {
-	scanner := bufio.NewScanner(r.file)
+func (qp *QueryParser) Parse() error {
+	dec := json.NewDecoder(qp.file)
+	qm := make(QueryMap, queryMapBuffer)
 
-	var buf bytes.Buffer
-	buf.WriteByte('[')
-	lineCount := 0
+	for {
+		var q Query
+		if err := dec.Decode(&q); err == io.EOF {
+			break
+		} else if err != nil {
+			return errors.Wrap(err, "Failed to Decode json.")
+		}
 
-	for scanner.Scan() {
-		b := scanner.Bytes()
-
-		buf.Write(b)
-		buf.WriteByte(',')
-
-		lineCount += 1
+		qi, ok := qm[q.RequestID]
+		if ok {
+			qi.Count++
+			qi.Queries = append(qi.Queries, q)
+		} else {
+			qm[q.RequestID] = &QueryIndex{
+				Queries: []Query{q},
+				Count:   1,
+			}
+		}
 	}
-
-	data := buf.Bytes()
-	data[len(data)-1] = ']'
-
-	query := make([]Query, lineCount)
-
-	if err := json.Unmarshal(data, &query); err != nil {
-		return errors.Wrap(err, "Failed to Unmarshal json.")
-	}
-
-	r.Queries = query
-
+	qp.QueryMap = qm
 	return nil
 }
