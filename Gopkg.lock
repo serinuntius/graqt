@@ -32,6 +32,12 @@
   version = "1.0.0"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
@@ -42,6 +48,12 @@
   packages = ["."]
   revision = "f4671c3635aba87ef606b7cf4d736b29c401ee63"
   version = "v0.1.0"
+
+[[projects]]
+  name = "github.com/urfave/cli"
+  packages = ["."]
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
 
 [[projects]]
   name = "go.uber.org/atomic"
@@ -68,9 +80,21 @@
   revision = "eeedf312bc6c57391d84767a4cd413f02a917974"
   version = "v1.8.0"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "f4c29de78a2a91c00474a2e689954305c350adf9"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8882d310cf5adc7695d6aeeba1d474365f43ce26481067546afbaf76c6fbfcaa"
+  inputs-digest = "7cc080412e5d0d5bb00ffae4323f1540c483a0a9966453e547770d3b2c4e8599"
   solver-name = "gps-cdcl"
   solver-version = 1
