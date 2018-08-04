@@ -76,13 +76,13 @@ func newFlags(option *option) (*[]cli.Flag) {
 	return &[]cli.Flag{
 		&cli.StringFlag{
 			Name:        "request-file,rf",
-			Value:    "log/request.log",
+			Value:       "log/request.log",
 			Usage:       "path of request.log",
 			Destination: &option.RequestFile,
 		},
 		&cli.StringFlag{
 			Name:        "query-file,qf",
-			Value:    "log/query.log",
+			Value:       "log/query.log",
 			Usage:       "path of query.log",
 			Destination: &option.QueryFile,
 		},
