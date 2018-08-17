@@ -27,28 +27,33 @@ type Request struct {
 	Body      int // TODO
 }
 
+type RequestMinimum struct {
+	Time      float64
+	RequestID string
+}
+
 type RequestParser struct {
 	File       io.Reader
 	RequestMap RequestMap
 }
 
 type RequestIndex struct {
-	RequestIDs []string
-	Max        time.Duration
-	Min        time.Duration
-	Avg        time.Duration
-	Sum        time.Duration
-	P1         time.Duration
-	P50        time.Duration
-	P99        time.Duration
-	Stddev     time.Duration
-	Count      int
-	Uri        string
-	Method     string
-	MaxBody    int
-	MinBody    int
-	AvgBody    int
-	SumBody    int
+	Requests []RequestMinimum
+	Max      time.Duration
+	Min      time.Duration
+	Avg      time.Duration
+	Sum      time.Duration
+	P1       time.Duration
+	P50      time.Duration
+	P99      time.Duration
+	Stddev   time.Duration
+	Count    int
+	Uri      string
+	Method   string
+	MaxBody  int
+	MinBody  int
+	AvgBody  int
+	SumBody  int
 }
 
 type RequestMap map[string]*RequestIndex
@@ -80,7 +85,7 @@ func (rp *RequestParser) Parse() error {
 
 		ri, ok := rm[r.Path]
 		if ok {
-			ri.RequestIDs = append(ri.RequestIDs, r.RequestID)
+			ri.Requests = append(ri.Requests, RequestMinimum{Time: r.Time, RequestID: r.RequestID})
 
 			if ri.Max < t {
 				ri.Max = t
@@ -102,13 +107,13 @@ func (rp *RequestParser) Parse() error {
 			ri.Sum += t
 		} else {
 			rm[r.Path] = &RequestIndex{
-				RequestIDs: []string{r.RequestID},
-				Max:        t,
-				Min:        t,
-				Sum:        t,
-				Count:      1,
-				Uri:        r.Path,
-				Method:     r.Method,
+				Requests: []RequestMinimum{{Time: r.Time, RequestID: r.RequestID}},
+				Max:      t,
+				Min:      t,
+				Sum:      t,
+				Count:    1,
+				Uri:      r.Path,
+				Method:   r.Method,
 				// TODO Body size
 				MaxBody: r.Body,
 				MinBody: r.Body,
