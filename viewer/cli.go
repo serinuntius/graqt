@@ -24,6 +24,7 @@ var (
 type option struct {
 	RequestFile string
 	QueryFile   string
+	ConfigFile  string
 	Max         bool
 	Min         bool
 	Avg         bool
@@ -85,6 +86,12 @@ func newFlags(option *option) (*[]cli.Flag) {
 			Value:       "log/query.log",
 			Usage:       "path of query.log",
 			Destination: &option.QueryFile,
+		},
+		&cli.StringFlag{
+			Name:        "config,c",
+			Value:       "graqt.yaml",
+			Usage:       "path of config",
+			Destination: &option.ConfigFile,
 		},
 		&cli.BoolFlag{
 			Name:        "max",

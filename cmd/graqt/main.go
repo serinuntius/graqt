@@ -23,6 +23,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// setup config
+	configFile, err := os.Open(viewer.Option.ConfigFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer configFile.Close()
+
+	// setup setting
+	config, err := viewer.LoadConfig(configFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	setting, err := viewer.LoadSetting(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// setup log
 
 	f1, err := os.Open(viewer.Option.RequestFile)
@@ -31,7 +49,7 @@ func main() {
 	}
 	defer f1.Close()
 
-	rp := viewer.NewRequestParser(f1)
+	rp := viewer.NewRequestParser(f1, setting)
 
 	f2, err := os.Open(viewer.Option.QueryFile)
 	if err != nil {
@@ -39,7 +57,7 @@ func main() {
 	}
 	defer f2.Close()
 
-	qp := viewer.NewQueryParser(f2)
+	qp := viewer.NewQueryParser(f2, setting)
 
 	var eg errgroup.Group
 
