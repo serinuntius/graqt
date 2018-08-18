@@ -6,21 +6,22 @@ import (
 
 	"github.com/jroimartin/gocui"
 	"github.com/pkg/errors"
+	"github.com/serinuntius/graqt/viewer"
 )
 
 type RequestWidget struct {
-	name     string
-	x, y     int
-	w, h     int
-	index    int
-	view     *gocui.View
-	tw       *tabwriter.Writer
-	messages []string
+	name           string
+	x, y           int
+	w, h           int
+	index          int
+	view           *gocui.View
+	tw             *tabwriter.Writer
+	RequestIndexes viewer.RequestIndexes
 }
 
-func NewRequestWidget(name string, x, y, w, h int) *RequestWidget {
+func NewRequestWidget(name string, x, y, w, h int, ri viewer.RequestIndexes) *RequestWidget {
 	// add initialize
-	return &RequestWidget{name: name, x: x, y: y, w: w, h: h, index: 0}
+	return &RequestWidget{name: name, x: x, y: y, w: w, h: h, index: 0, RequestIndexes: ri}
 }
 
 func (w *RequestWidget) Layout(g *gocui.Gui) error {
@@ -50,11 +51,8 @@ func (w *RequestWidget) Layout(g *gocui.Gui) error {
 			return err
 		}
 
-		// TODO テスト用
-		for i := 0; i < 100; i++ {
-			msg := fmt.Sprintf("\t%d\tGET\t/hoge\t10\t0.3\t5\t3000\t3\t8\t9\t8\t300mb\t50mb\t30mb\t30000mb", i)
-			fmt.Fprintln(w.tw, msg)
-			w.messages = append(w.messages, msg)
+		for _, ri := range w.RequestIndexes {
+			fmt.Fprintln(w.tw, ri.String())
 		}
 
 		w.tw.Flush()
@@ -81,7 +79,6 @@ func (w *RequestWidget) enter(g *gocui.Gui, v *gocui.View) error {
 		if err != gocui.ErrUnknownView {
 			return errors.Wrap(err, "Failed to query.Layout")
 		}
-
 	}
 
 	return nil
@@ -101,8 +98,8 @@ func (w *RequestWidget) cursorUp(g *gocui.Gui, v *gocui.View) error {
 			if w.index != 0 {
 				w.index--
 			}
-			for i := w.index; i < len(w.messages); i++ {
-				fmt.Fprintln(w.tw, w.messages[i])
+			for i := w.index; i < len(w.RequestIndexes); i++ {
+				fmt.Fprintln(w.tw, w.RequestIndexes[i].String())
 			}
 
 			w.tw.Flush()
@@ -119,8 +116,8 @@ func (w *RequestWidget) cursorUp(g *gocui.Gui, v *gocui.View) error {
 					w.index--
 				}
 
-				for i := w.index; i < len(w.messages); i++ {
-					fmt.Fprintln(w.tw, w.messages[i])
+				for i := w.index; i < len(w.RequestIndexes); i++ {
+					fmt.Fprintln(w.tw, w.RequestIndexes[i].String())
 				}
 				w.tw.Flush()
 				fmt.Fprintln(w.view)
@@ -152,12 +149,12 @@ func (w *RequestWidget) cursorDown(g *gocui.Gui, v *gocui.View) error {
 				return errors.Wrap(err, "Failed to PrintHeader")
 			}
 
-			if len(w.messages) != w.index {
+			if len(w.RequestIndexes) != w.index {
 				w.index++
 			}
 
-			for i := w.index; i < len(w.messages); i++ {
-				fmt.Fprintln(w.tw, w.messages[i])
+			for i := w.index; i < len(w.RequestIndexes); i++ {
+				fmt.Fprintln(w.tw, w.RequestIndexes[i].String())
 			}
 
 			w.tw.Flush()
@@ -168,33 +165,27 @@ func (w *RequestWidget) cursorDown(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func (w *RequestWidget) Printf(format string, a ...interface{}) {
-	fmt.Fprintf(w.tw, format, a)
-	w.tw.Flush()
-	fmt.Fprintln(w.view)
-}
-
 func (w *RequestWidget) KeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding(w.name, gocui.KeyEnter, gocui.ModNone, w.enter); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, gocui.KeyArrowDown, gocui.ModNone, w.cursorDown); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, gocui.KeyArrowUp, gocui.ModNone, w.cursorUp); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, gocui.KeyCtrlN, gocui.ModNone, w.cursorDown); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, gocui.KeyCtrlP, gocui.ModNone, w.cursorUp); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, 'j', gocui.ModNone, w.cursorDown); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 	if err := g.SetKeybinding(w.name, 'k', gocui.ModNone, w.cursorUp); err != nil {
-		return errors.Wrap(err,"Failed to SetKeybinding")
+		return errors.Wrap(err, "Failed to SetKeybinding")
 	}
 
 	return nil
