@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 )
@@ -31,6 +32,27 @@ func RequestId(next http.Handler) http.Handler {
 		)
 	})
 }
+
+
+func RequestIdForGin(next http.Handler) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		t1 := time.Now()
+
+		id := newRequestID()
+		c.Set(string(RequestIDKey),id)
+
+		c.Next()
+
+		RLogger.Info("",
+			zap.Duration("time", time.Since(t1)),
+			zap.String("request_id", id),
+			zap.String("path", c.Request.RequestURI),
+			zap.String("method", c.Request.Method),
+			zap.Int64("content-length", c.Request.ContentLength),
+		)
+	}
+}
+
 
 func newRequestID() string {
 	return uuid.NewV4().String()
