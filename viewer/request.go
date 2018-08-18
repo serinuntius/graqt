@@ -6,6 +6,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +25,7 @@ type Request struct {
 	RequestID string  `json:"request_id"`
 	Path      string  `json:"path"`
 	Method    string  `json:"method"`
-	Body      int // TODO
+	Body      uint64 // TODO
 }
 
 type RequestMinimum struct {
@@ -33,9 +34,11 @@ type RequestMinimum struct {
 }
 
 type RequestParser struct {
-	File       io.Reader
-	RequestMap RequestMap
+	File           io.Reader
+	RequestIndexes RequestIndexes
 }
+
+type RequestIndexes []RequestIndex
 
 type RequestIndex struct {
 	Requests []RequestMinimum
@@ -50,10 +53,29 @@ type RequestIndex struct {
 	Count    int
 	Uri      string
 	Method   string
-	MaxBody  int
-	MinBody  int
-	AvgBody  int
-	SumBody  int
+	MaxBody  uint64
+	MinBody  uint64
+	AvgBody  uint64
+	SumBody  uint64
+}
+
+func (ri *RequestIndex) String() string {
+	return fmt.Sprintf("\t%d\t%s\t%s\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%s\t%s\t%s\t%s",
+		ri.Count,
+		ri.Method,
+		ri.Uri,
+		ri.Max.Seconds(),
+		ri.Min.Seconds(),
+		ri.Avg.Seconds(),
+		ri.Sum.Seconds(),
+		ri.P1.Seconds(),
+		ri.P50.Seconds(),
+		ri.P99.Seconds(),
+		ri.Stddev.Seconds(),
+		humanize.Bytes(ri.MaxBody),
+		humanize.Bytes(ri.MinBody),
+		humanize.Bytes(ri.AvgBody),
+		humanize.Bytes(ri.SumBody))
 }
 
 type RequestMap map[string]*RequestIndex
@@ -75,8 +97,6 @@ func (rp *RequestParser) Parse() error {
 		} else if err != nil {
 			return errors.Wrap(err, "Failed to Decode json.")
 		}
-
-		//log.Println(r)
 
 		t, err := time.ParseDuration(fmt.Sprintf("%fs", r.Time))
 		if err != nil {
@@ -122,7 +142,16 @@ func (rp *RequestParser) Parse() error {
 		}
 	}
 
-	rp.RequestMap = rm
+	ris := make(RequestIndexes, len(rm))
+
+	idx := 0
+	for _, ri := range rm {
+		ris[idx] = *ri
+		idx++
+	}
+
+	rp.RequestIndexes = ris
+
 	// TODO avg,p,stddev系は後で数える
 	return nil
 
