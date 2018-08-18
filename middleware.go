@@ -33,7 +33,7 @@ func RequestId(next http.Handler) http.Handler {
 	})
 }
 
-func RequestIdForGin(next http.Handler) gin.HandlerFunc {
+func RequestIdForGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t1 := time.Now()
 
