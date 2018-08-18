@@ -17,24 +17,43 @@ func init() {
 			return time.Now(), nil
 		},
 		PostExec: func(c context.Context, ctx interface{}, stmt *proxy.Stmt, args []driver.NamedValue, _ driver.Result, _ error) error {
-			QLogger.Info("Exec",
-				zap.String("query", stmt.QueryString),
-				zap.Any("args", args),
-				zap.Duration("time", time.Since(ctx.(time.Time))),
-				zap.String("request_id", c.Value(RequestIDKey).(string)),
-			)
+			v := c.Value(RequestIDKey)
+			if vs, ok := v.(string); ok {
+				QLogger.Info("Exec",
+					zap.String("query", stmt.QueryString),
+					zap.Any("args", args),
+					zap.Duration("time", time.Since(ctx.(time.Time))),
+					zap.String("request_id", vs),
+				)
+			} else {
+				QLogger.Info("Exec",
+					zap.String("query", stmt.QueryString),
+					zap.Any("args", args),
+					zap.Duration("time", time.Since(ctx.(time.Time))),
+				)
+			}
+
 			return nil
 		},
 		PreQuery: func(_ context.Context, _ *proxy.Stmt, _ []driver.NamedValue) (interface{}, error) {
 			return time.Now(), nil
 		},
 		PostQuery: func(c context.Context, ctx interface{}, stmt *proxy.Stmt, args []driver.NamedValue, _ driver.Rows, _ error) error {
-			QLogger.Info("Query",
-				zap.String("query", stmt.QueryString),
-				zap.Any("args", args),
-				zap.Duration("time", time.Since(ctx.(time.Time))),
-				zap.String("request_id", c.Value(RequestIDKey).(string)),
-			)
+			v := c.Value(RequestIDKey)
+			if vs, ok := v.(string); ok {
+				QLogger.Info("Query",
+					zap.String("query", stmt.QueryString),
+					zap.Any("args", args),
+					zap.Duration("time", time.Since(ctx.(time.Time))),
+					zap.String("request_id", vs),
+				)
+			} else {
+				QLogger.Info("Query",
+					zap.String("query", stmt.QueryString),
+					zap.Any("args", args),
+					zap.Duration("time", time.Since(ctx.(time.Time))),
+				)
+			}
 			return nil
 		},
 	}))

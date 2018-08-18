@@ -32,3 +32,11 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/jroimartin/gocui"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dustin/go-humanize"
