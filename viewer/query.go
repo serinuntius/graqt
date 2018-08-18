@@ -35,6 +35,7 @@ type args struct {
 type QueryParser struct {
 	QueryMap QueryMap
 	file     io.Reader
+	Setting  *Setting
 }
 
 type QueryIndex struct {
@@ -44,9 +45,10 @@ type QueryIndex struct {
 
 type QueryMap map[string]*QueryIndex
 
-func NewQueryParser(file io.Reader) *QueryParser {
+func NewQueryParser(file io.Reader, setting *Setting) *QueryParser {
 	return &QueryParser{
-		file: file,
+		file:    file,
+		Setting: setting,
 	}
 }
 
