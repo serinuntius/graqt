@@ -166,8 +166,8 @@ func (rp *RequestParser) Parse() error {
 		ri.Avg = ri.Sum / time.Duration(ri.Count)
 		ri.AvgBody = ri.SumBody / uint64(ri.Count)
 
-		// Percentile
-		// Need sort
+		// calculate percentile need sort
+
 		sort.Slice(ri.Requests, func(i, j int) bool {
 			return ri.Requests[i].Time < ri.Requests[j].Time
 		})
@@ -188,7 +188,6 @@ func (rp *RequestParser) Parse() error {
 
 	rp.RequestIndexes = ris
 
-	// TODO avg,p,stddev系は後で数える
 	return nil
 
 }
