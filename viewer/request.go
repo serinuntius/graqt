@@ -27,7 +27,7 @@ type Request struct {
 	RequestID string  `json:"request_id"`
 	Path      string  `json:"path"`
 	Method    string  `json:"method"`
-	Body      uint64  `json:"content-length"`
+	Body      uint64  `json:"content_length"`
 }
 
 type RequestMinimum struct {

@@ -30,7 +30,7 @@ func RequestId(next http.Handler) http.Handler {
 			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
 			zap.String("method", r.Method),
-			zap.Uint64("content-length", uint64(ww.Size())),
+			zap.Uint64("content_length", uint64(ww.Size())),
 		)
 	})
 }
@@ -50,7 +50,7 @@ func RequestIdForGin() gin.HandlerFunc {
 			zap.String("request_id", id),
 			zap.String("path", c.Request.RequestURI),
 			zap.String("method", c.Request.Method),
-			zap.Uint64("content-length", uint64(c.Writer.Size())),
+			zap.Uint64("content_length", uint64(c.Writer.Size())),
 		)
 
 	}
