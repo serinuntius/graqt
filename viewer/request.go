@@ -142,6 +142,7 @@ func (rp *RequestParser) Parse() error {
 
 			ri.Count += 1
 			ri.Sum += t
+			ri.SumBody += r.Body
 		} else {
 			rm[path] = &RequestIndex{
 				Requests: []RequestMinimum{{Time: r.Time, RequestID: r.RequestID}},
