@@ -10,9 +10,9 @@ import (
 	"go.uber.org/zap"
 )
 
-type key int
+type key string
 
-const RequestIDKey key = 0
+const RequestIDKey key = "RequestID"
 
 func RequestId(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -33,26 +33,27 @@ func RequestId(next http.Handler) http.Handler {
 	})
 }
 
-
 func RequestIdForGin(next http.Handler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t1 := time.Now()
 
 		id := newRequestID()
-		c.Set(string(RequestIDKey),id)
+		ctx := setRequestID(c, id)
 
-		c.Next()
+		gctx, ok := ctx.(*gin.Context)
+		if ok {
+			gctx.Next()
 
-		RLogger.Info("",
-			zap.Duration("time", time.Since(t1)),
-			zap.String("request_id", id),
-			zap.String("path", c.Request.RequestURI),
-			zap.String("method", c.Request.Method),
-			zap.Int64("content-length", c.Request.ContentLength),
-		)
+			RLogger.Info("",
+				zap.Duration("time", time.Since(t1)),
+				zap.String("request_id", id),
+				zap.String("path", gctx.Request.RequestURI),
+				zap.String("method", gctx.Request.Method),
+				zap.Int64("content-length", gctx.Request.ContentLength),
+			)
+		}
 	}
 }
-
 
 func newRequestID() string {
 	return uuid.NewV4().String()
