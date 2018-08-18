@@ -1,6 +1,7 @@
 package graqt
 
 import (
+	"bufio"
 	"context"
 	"net/http"
 	"time"
@@ -22,13 +23,14 @@ func RequestId(next http.Handler) http.Handler {
 		ctx := setRequestID(r.Context(), id)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
+		ww := bufio.NewReader(r.Response.Body)
 
 		RLogger.Info("",
 			zap.Duration("time", time.Since(t1)),
 			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
 			zap.String("method", r.Method),
-			zap.Int64("content-length", r.ContentLength),
+			zap.Int64("content-length", int64(ww.Size())),
 		)
 	})
 }
@@ -48,7 +50,7 @@ func RequestIdForGin() gin.HandlerFunc {
 			zap.String("request_id", id),
 			zap.String("path", c.Request.RequestURI),
 			zap.String("method", c.Request.Method),
-			zap.Int64("content-length", c.Request.ContentLength),
+			zap.Int64("content-length", int64(c.Writer.Size())),
 		)
 
 	}
