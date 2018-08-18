@@ -25,33 +25,32 @@ func main() {
 
 	// setup log
 
+	f1, err := os.Open(viewer.Option.RequestFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f1.Close()
+
+	rp := viewer.NewRequestParser(f1)
+
+	f2, err := os.Open(viewer.Option.QueryFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f2.Close()
+
+	qp := viewer.NewQueryParser(f2)
+
 	var eg errgroup.Group
 
-	var rp *viewer.RequestParser
-	var qp *viewer.QueryParser
-
 	eg.Go(func() error {
-		file, err := os.Open(viewer.Option.RequestFile)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		rp = viewer.NewRequestParser(file)
 		if err := rp.Parse(); err != nil {
-			return err
+			return errors.Wrap(err, "Failed to rp.Parse().")
 		}
 		return nil
 	})
 
 	eg.Go(func() error {
-		file, err := os.Open(viewer.Option.QueryFile)
-		if err != nil {
-			return errors.Wrap(err, "Failed to os.Open()")
-		}
-		defer file.Close()
-
-		qp = viewer.NewQueryParser(file)
 		if err := qp.Parse(); err != nil {
 			return errors.Wrap(err, "Failed to qp.Parse().")
 		}
@@ -62,7 +61,6 @@ func main() {
 	if err := eg.Wait(); err != nil {
 		log.Fatal(err)
 	}
-
 
 	// setup gocui
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -76,7 +74,7 @@ func main() {
 
 	winX, winY := g.Size()
 
-	request := gui.NewRequestWidget("request", 0, 0, winX-1, winY-3)
+	request := gui.NewRequestWidget("request", 0, 0, winX-1, winY-3, rp.RequestIndexes)
 	help := gui.NewHelpWidget("help", 0, winY-3, winX-1, 2)
 	//parameter := NewParameterWidget("parameter", winX/2, winY/2, winX/2-1, winY/2-2)
 
