@@ -36,6 +36,7 @@ type RequestMinimum struct {
 type RequestParser struct {
 	File           io.Reader
 	RequestIndexes RequestIndexes
+	Setting        *Setting
 }
 
 type RequestIndexes []RequestIndex
@@ -80,9 +81,10 @@ func (ri *RequestIndex) String() string {
 
 type RequestMap map[string]*RequestIndex
 
-func NewRequestParser(file io.Reader) *RequestParser {
+func NewRequestParser(file io.Reader, setting *Setting) *RequestParser {
 	return &RequestParser{
-		File: file,
+		File:    file,
+		Setting: setting,
 	}
 }
 
@@ -103,7 +105,21 @@ func (rp *RequestParser) Parse() error {
 			return errors.Wrap(err, "Failed to parse time")
 		}
 
-		ri, ok := rm[r.Path]
+
+		path := r.Path
+
+		if len(rp.Setting.AggregateRegexps) > 0 {
+			for _, re := range rp.Setting.AggregateRegexps {
+				if ok := re.Match([]byte(path)); !ok {
+					continue
+				} else {
+					path = re.String()
+					break
+				}
+			}
+		}
+
+		ri, ok := rm[path]
 		if ok {
 			ri.Requests = append(ri.Requests, RequestMinimum{Time: r.Time, RequestID: r.RequestID})
 
@@ -126,17 +142,17 @@ func (rp *RequestParser) Parse() error {
 			ri.Count += 1
 			ri.Sum += t
 		} else {
-			rm[r.Path] = &RequestIndex{
+			rm[path] = &RequestIndex{
 				Requests: []RequestMinimum{{Time: r.Time, RequestID: r.RequestID}},
 				Max:      t,
 				Min:      t,
 				Sum:      t,
 				Count:    1,
-				Uri:      r.Path,
+				Uri:      path,
 				Method:   r.Method,
-				MaxBody: r.Body,
-				MinBody: r.Body,
-				SumBody: r.Body,
+				MaxBody:  r.Body,
+				MinBody:  r.Body,
+				SumBody:  r.Body,
 			}
 		}
 	}
