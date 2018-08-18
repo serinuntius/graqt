@@ -25,7 +25,7 @@ type Request struct {
 	RequestID string  `json:"request_id"`
 	Path      string  `json:"path"`
 	Method    string  `json:"method"`
-	Body      uint64 // TODO
+	Body      uint64  `json:"content-length"`
 }
 
 type RequestMinimum struct {
@@ -134,7 +134,6 @@ func (rp *RequestParser) Parse() error {
 				Count:    1,
 				Uri:      r.Path,
 				Method:   r.Method,
-				// TODO Body size
 				MaxBody: r.Body,
 				MinBody: r.Body,
 				SumBody: r.Body,

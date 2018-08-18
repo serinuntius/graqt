@@ -27,6 +27,7 @@ func RequestId(next http.Handler) http.Handler {
 			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
 			zap.String("method", r.Method),
+			zap.Int64("content-length", r.ContentLength),
 		)
 	})
 }
