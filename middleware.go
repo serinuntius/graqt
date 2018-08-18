@@ -38,20 +38,19 @@ func RequestIdForGin() gin.HandlerFunc {
 		t1 := time.Now()
 
 		id := newRequestID()
-		ctx := setRequestID(c, id)
 
-		gctx, ok := ctx.(*gin.Context)
-		if ok {
-			gctx.Next()
+		c.Set(string(RequestIDKey), id)
 
-			RLogger.Info("",
-				zap.Duration("time", time.Since(t1)),
-				zap.String("request_id", id),
-				zap.String("path", gctx.Request.RequestURI),
-				zap.String("method", gctx.Request.Method),
-				zap.Int64("content-length", gctx.Request.ContentLength),
-			)
-		}
+		c.Next()
+
+		RLogger.Info("",
+			zap.Duration("time", time.Since(t1)),
+			zap.String("request_id", id),
+			zap.String("path", c.Request.RequestURI),
+			zap.String("method", c.Request.Method),
+			zap.Int64("content-length", c.Request.ContentLength),
+		)
+
 	}
 }
 
