@@ -11,9 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type key string
-
-const RequestIDKey key = "RequestID"
+const RequestIDKey = "RequestID"
 
 func RequestId(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +39,7 @@ func RequestIdForGin() gin.HandlerFunc {
 
 		id := newRequestID()
 
-		c.Set(string(RequestIDKey), id)
+		c.Set(RequestIDKey, id)
 
 		c.Next()
 
