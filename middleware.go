@@ -1,9 +1,10 @@
 package graqt
 
 import (
-	"bufio"
 	"context"
 	"net/http"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,22 +14,29 @@ import (
 
 const RequestIDKey = "RequestID"
 
+var bodySizeWriterPool = sync.Pool{
+	New: func() interface{} {
+		return &bodySizeWriter{}
+	},
+}
+
 func RequestId(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t1 := time.Now()
 
 		id := newRequestID()
 		ctx := setRequestID(r.Context(), id)
+		bcw := newBodyCopyWriter(w)
+		defer bcw.close()
 
-		next.ServeHTTP(w, r.WithContext(ctx))
-		ww := bufio.NewReader(r.Response.Body)
+		next.ServeHTTP(bcw, r.WithContext(ctx))
 
 		RLogger.Info("",
 			zap.Duration("time", time.Since(t1)),
 			zap.String("request_id", id),
 			zap.String("path", r.RequestURI),
 			zap.String("method", r.Method),
-			zap.Uint64("content_length", uint64(ww.Size())),
+			zap.Uint64("content_length", bcw.Size()),
 		)
 	})
 }
@@ -52,6 +60,33 @@ func RequestIdForGin() gin.HandlerFunc {
 		)
 
 	}
+}
+
+type bodySizeWriter struct {
+	http.ResponseWriter
+	size uint64
+}
+
+func newBodyCopyWriter(w http.ResponseWriter) *bodySizeWriter {
+	bsw := bodySizeWriterPool.Get().(*bodySizeWriter)
+	bsw.ResponseWriter = w
+	bsw.size = 0
+	return bsw
+}
+
+func (bcw *bodySizeWriter) close() {
+	bodySizeWriterPool.Put(bcw)
+}
+
+func (bcw *bodySizeWriter) Write(b []byte) (int, error) {
+	size, err := bcw.ResponseWriter.Write(b)
+	atomic.AddUint64(&bcw.size, uint64(size))
+	return size, err
+}
+
+func (bcw *bodySizeWriter) Size() uint64 {
+	u := atomic.LoadUint64(&bcw.size)
+	return u
 }
 
 func newRequestID() string {
